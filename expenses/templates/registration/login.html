@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Login — Ledger{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+  <div class="auth-brand-panel">
+    <span class="eyebrow">Personal Finance</span>
+    <h1>Setiap transaksi,<br>tercatat rapi.</h1>
+    <p>Pantau pemasukan dan pengeluaranmu dalam satu tempat yang sederhana dan jelas.</p>
+  </div>
+
+  <div class="auth-form-panel">
+    <div class="auth-form-card">
+      <h2>Masuk ke akunmu</h2>
+      <p class="auth-subtitle">Lanjutkan mencatat keuanganmu hari ini.</p>
+
+      {% if form.errors %}
+        <div class="form-error">Username atau password salah. Coba lagi.</div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn-primary">Login</button>
+      </form>
+
+      <p class="auth-footer">Belum punya akun? <a href="{% url 'register' %}">Daftar sekarang</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}

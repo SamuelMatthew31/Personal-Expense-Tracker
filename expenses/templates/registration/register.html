@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Daftar — Ledger{% endblock %}
+
+{% block content %}
+<div class="auth-shell">
+  <div class="auth-brand-panel">
+    <span class="eyebrow">Mulai Gratis</span>
+    <h1>Kelola uangmu<br>dengan tenang.</h1>
+    <p>Buat akun dalam hitungan detik dan mulai catat transaksi pertamamu.</p>
+  </div>
+
+  <div class="auth-form-panel">
+    <div class="auth-form-card">
+      <h2>Buat akun baru</h2>
+      <p class="auth-subtitle">Gratis, dan datamu hanya bisa diakses olehmu sendiri.</p>
+
+      {% if form.errors %}
+        <div class="form-error">Periksa kembali data yang kamu masukkan.</div>
+      {% endif %}
+
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn-primary">Daftar</button>
+      </form>
+
+      <p class="auth-footer">Sudah punya akun? <a href="{% url 'login' %}">Login di sini</a></p>
+    </div>
+  </div>
+</div>
+{% endblock %}
