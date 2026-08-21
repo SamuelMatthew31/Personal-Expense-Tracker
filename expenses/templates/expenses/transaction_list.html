@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Transaksi — Ledger{% endblock %}
+
+{% block content %}
+<style>
+  .list-wrap { max-width: 1080px; margin: 0 auto; padding: 2.5rem 2rem; }
+  .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+  .list-header h1 { font-family: 'Fraunces', serif; font-size: 1.6rem; font-weight: 600; margin: 0; }
+
+  table { width: 100%; border-collapse: collapse; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; }
+  th { text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ink-soft); padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--color-border); }
+  td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--color-border); font-size: 0.92rem; }
+  tr:last-child td { border-bottom: none; }
+
+  .amount-income { color: var(--color-primary); font-family: 'IBM Plex Mono', monospace; }
+  .amount-expense { color: #B5482F; font-family: 'IBM Plex Mono', monospace; }
+
+  .row-actions a { font-size: 0.85rem; margin-right: 1rem; text-decoration: none; color: var(--color-ink-soft); }
+  .row-actions a:hover { color: var(--color-primary); }
+</style>
+
+<div class="list-wrap">
+  <div class="list-header">
+    <div>
+      <a href="{% url 'dashboard' %}" style="font-size: 0.85rem; color: var(--color-ink-soft); text-decoration: none; display: inline-block; margin-bottom: 0.5rem;">&larr; Kembali ke Dashboard</a>
+      <h1>Semua Transaksi</h1>
+    </div>
+    <a href="{% url 'transaction_create' %}" class="btn-primary-inline">+ Tambah Transaksi</a>
+  </div>
+
+  {% if transactions %}
+  <table>
+    <thead>
+      <tr>
+        <th>Tanggal</th>
+        <th>Kategori</th>
+        <th>Deskripsi</th>
+        <th>Jumlah</th>
+        <th>Aksi</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in transactions %}
+      <tr>
+        <td>{{ t.transaction_date }}</td>
+        <td>{{ t.category }}</td>
+        <td>{{ t.description|default:"—" }}</td>
+        <td class="{% if t.type == 'IN' %}amount-income{% else %}amount-expense{% endif %}">
+          {% if t.type == 'IN' %}+{% else %}-{% endif %} Rp {{ t.amount }}
+        </td>
+        <td class="row-actions">
+          <a href="{% url 'transaction_update' t.pk %}">Edit</a>
+          <a href="{% url 'transaction_delete' t.pk %}">Hapus</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty-state">
+    <h2>Belum ada transaksi</h2>
+    <p>Mulai catat pemasukan atau pengeluaran pertamamu.</p>
+    <a href="{% url 'transaction_create' %}" class="btn-primary-inline">+ Tambah Transaksi</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

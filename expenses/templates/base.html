@@ -238,6 +238,16 @@
   </header>
 
   <main>
+    {% if messages %}
+    <div style="max-width: 1080px; margin: 1.5rem auto 0 auto; padding: 0 2rem;">
+        {% for message in messages %}
+        <div style="background: #E8F3EC; border: 1px solid #B8DDC5; color: #14503C; padding: 0.75rem 1rem; border-radius: 6px; font-size: 0.9rem; margin-bottom: 0.75rem;">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    
     {% block content %}{% endblock %}
   </main>
 </body>

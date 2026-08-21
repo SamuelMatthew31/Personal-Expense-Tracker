@@ -16,6 +16,11 @@
   .dash-header .eyebrow {
     display: block;
     margin-bottom: 0.4rem;
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--color-accent);
   }
 
   .dash-header h1 {
@@ -94,6 +99,34 @@
 
   .btn-primary-inline:hover { background: var(--color-primary-dark); }
 
+  .recent-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+  }
+
+  .recent-header h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .recent-header a {
+    font-size: 0.85rem;
+    color: var(--color-primary);
+    text-decoration: none;
+    font-weight: 500;
+  }
+
+  table { width: 100%; border-collapse: collapse; background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; overflow: hidden; }
+  th { text-align: left; font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ink-soft); padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--color-border); }
+  td { padding: 0.9rem 1.2rem; border-bottom: 1px solid var(--color-border); font-size: 0.92rem; }
+  tr:last-child td { border-bottom: none; }
+  .amount-income { color: var(--color-primary); font-family: 'IBM Plex Mono', monospace; }
+  .amount-expense { color: #B5482F; font-family: 'IBM Plex Mono', monospace; }
+
   @media (max-width: 700px) {
     .summary-grid { grid-template-columns: 1fr; }
   }
@@ -101,29 +134,56 @@
 
 <div class="dash-wrap">
   <div class="dash-header">
-    <span class="eyebrow" style="color: var(--color-accent);">Ringkasan</span>
+    <span class="eyebrow">Ringkasan</span>
     <h1>Halo, {{ user.username }}</h1>
   </div>
 
   <div class="summary-grid">
     <div class="summary-card balance">
       <div class="label">Saldo</div>
-      <div class="value">Rp 0</div>
+      <div class="value">Rp {{ balance }}</div>
     </div>
     <div class="summary-card income">
       <div class="label">Pemasukan</div>
-      <div class="value">Rp 0</div>
+      <div class="value">Rp {{ income }}</div>
     </div>
     <div class="summary-card expense">
       <div class="label">Pengeluaran</div>
-      <div class="value">Rp 0</div>
+      <div class="value">Rp {{ expense }}</div>
     </div>
   </div>
 
+  {% if recent_transactions %}
+  <div class="recent-header">
+    <h2>Transaksi Terbaru</h2>
+    <a href="{% url 'transaction_list' %}">Lihat semua &rarr;</a>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th>Tanggal</th>
+        <th>Kategori</th>
+        <th>Jumlah</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for t in recent_transactions %}
+      <tr>
+          <td>{{ t.transaction_date }}</td>
+          <td>{{ t.category }}</td>
+          <td class="{% if t.type == 'IN' %}amount-income{% else %}amount-expense{% endif %}">
+              {% if t.type == 'IN' %}+{% else %}-{% endif %} Rp {{ t.amount }}
+          </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
   <div class="empty-state">
     <h2>Belum ada transaksi</h2>
     <p>Mulai catat pemasukan atau pengeluaran pertamamu supaya ringkasan di atas mulai terisi.</p>
-    <a href="#" class="btn-primary-inline">+ Tambah Transaksi</a>
+    <a href="{% url 'transaction_create' %}" class="btn-primary-inline">+ Tambah Transaksi</a>
   </div>
+  {% endif %}
 </div>
 {% endblock %}

@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Hapus Transaksi — Ledger{% endblock %}
+
+{% block content %}
+<div class="form-wrap" style="max-width: 480px; margin: 2.5rem auto; padding: 0 2rem;">
+  <div class="form-card" style="background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 2rem;">
+    <h1 style="font-family: 'Fraunces', serif; font-size: 1.4rem; margin: 0 0 0.75rem 0;">Hapus transaksi ini?</h1>
+    <p style="color: var(--color-ink-soft); font-size: 0.92rem; margin-bottom: 1.5rem;">
+      {{ transaction.category }} — Rp {{ transaction.amount }} pada {{ transaction.transaction_date }}. Tindakan ini tidak bisa dibatalkan.
+    </p>
+    <form method="post">
+      {% csrf_token %}
+      <div style="display: flex; gap: 0.75rem;">
+        <button type="submit" style="flex:1; padding: 0.7rem; background: #B5482F; color: #fff; border: none; border-radius: 6px; font-weight: 600; cursor: pointer;">Ya, Hapus</button>
+        <a href="{% url 'transaction_list' %}" class="btn-secondary">Batal</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
