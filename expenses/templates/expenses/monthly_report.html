@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load currency_filters %}
+{% block title %}Laporan Bulanan — Ledger{% endblock %}
+
+{% block content %}
+<style>
+  .report-wrap { max-width: 1080px; margin: 0 auto; padding: 2.5rem 2rem; }
+
+  .report-header { margin-bottom: 1.5rem; }
+  .report-header a {
+    font-size: 0.85rem; color: var(--color-ink-soft); text-decoration: none;
+    display: inline-block; margin-bottom: 0.5rem;
+  }
+  .report-header h1 { font-family: 'Fraunces', serif; font-size: 1.7rem; font-weight: 600; margin: 0; }
+
+  .report-toolbar {
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 10px;
+    padding: 1.2rem 1.5rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.9rem;
+    align-items: flex-end;
+    flex-wrap: wrap;
+  }
+  .filter-field { display: flex; flex-direction: column; gap: 0.35rem; }
+  .filter-field label {
+    font-family: 'IBM Plex Mono', monospace;
+    font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--color-ink-soft);
+  }
+  .filter-field select {
+    padding: 0.55rem 0.7rem; border: 1px solid var(--color-border);
+    border-radius: 6px; font-family: 'Inter', sans-serif; font-size: 0.88rem;
+  }
+  .btn-filter {
+    padding: 0.6rem 1.1rem; background: var(--color-primary); color: #fff;
+    border: none; border-radius: 6px; font-weight: 600; font-size: 0.88rem; cursor: pointer;
+  }
+
+  .lang-toggle { display: flex; gap: 0.4rem; margin-left: auto; }
+  .lang-toggle a {
+    padding: 0.5rem 0.9rem; border: 1px solid var(--color-border); border-radius: 6px;
+    font-size: 0.82rem; text-decoration: none; color: var(--color-ink-soft);
+  }
+  .lang-toggle a.active { background: var(--color-primary); color: #fff; border-color: var(--color-primary); }
+
+  .summary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 2rem; }
+  .summary-card { background: var(--color-surface); border: 1px solid var(--color-border); border-radius: 10px; padding: 1.4rem 1.5rem; }
+  .summary-card .label { font-family: 'IBM Plex Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--color-ink-soft); margin-bottom: 0.6rem; }
+  .summary-card .value { font-family: 'IBM Plex Mono', monospace; font-size: 1.5rem; font-weight: 500; }
+  .summary-card.balance .value { color: var(--color-primary); }
+  .summary-card.income .value { color: var(--color-primary); }
+  .summary-card.expense .value { color: #B5482F; }
+
+  .breakdown-card {
+    background: var(--color-surface); border: 1px solid var(--color-border);
+    border-radius: 10px; padding: 1.5rem;
+  }
+  .breakdown-card h2 { font-family: 'Fraunces', serif; font-size: 1.15rem; font-weight: 600; margin: 0 0 1rem 0; }
+
+  .breakdown-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 0.7rem 0; border-bottom: 1px solid var(--color-border);
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-bar-wrap { flex: 1; margin: 0 1rem; background: var(--color-bg); border-radius: 4px; height: 6px; overflow: hidden; }
+  .breakdown-bar { height: 100%; background: #B5482F; }
+  .breakdown-amount { font-family: 'IBM Plex Mono', monospace; font-size: 0.88rem; white-space: nowrap; }
+
+  .empty-note { color: var(--color-ink-soft); font-size: 0.9rem; text-align: center; padding: 2rem 0; }
+
+  @media (max-width: 700px) {
+    .summary-grid { grid-template-columns: 1fr; }
+    .report-toolbar { flex-direction: column; align-items: stretch; }
+    .lang-toggle { margin-left: 0; }
+  }
+</style>
+
+<div class="report-wrap">
+  <div class="report-header">
+    <a href="{% url 'dashboard' %}">&larr; Kembali ke Dashboard</a>
+    <h1>Laporan {{ month_name }} {{ selected_year }}</h1>
+  </div>
+
+  <form method="get" class="report-toolbar">
+    <input type="hidden" name="lang" value="{{ lang }}">
+    <div class="filter-field">
+      <label>Bulan</label>
+      <select name="month">
+        {% for m_value, m_label in months %}
+        <option value="{{ m_value }}" {% if m_value == selected_month %}selected{% endif %}>{{ m_label }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="filter-field">
+      <label>Tahun</label>
+      <select name="year">
+        {% for y in available_years %}
+        <option value="{{ y }}" {% if y == selected_year %}selected{% endif %}>{{ y }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn-filter">Tampilkan</button>
+
+    <div class="lang-toggle">
+      <a href="?month={{ selected_month }}&year={{ selected_year }}&lang=id" class="{% if lang == 'id' %}active{% endif %}">ID</a>
+      <a href="?month={{ selected_month }}&year={{ selected_year }}&lang=en" class="{% if lang == 'en' %}active{% endif %}">EN</a>
+    </div>
+  </form>
+
+  <div class="summary-grid">
+    <div class="summary-card balance">
+      <div class="label">Saldo</div>
+      <div class="value">Rp {{ balance|rupiah }}</div>
+    </div>
+    <div class="summary-card income">
+      <div class="label">Pemasukan</div>
+      <div class="value">Rp {{ income|rupiah }}</div>
+    </div>
+    <div class="summary-card expense">
+      <div class="label">Pengeluaran</div>
+      <div class="value">Rp {{ expense|rupiah }}</div>
+    </div>
+  </div>
+
+  <div class="breakdown-card">
+    <h2>Pengeluaran per Kategori</h2>
+    {% if category_breakdown %}
+      {% for item in category_breakdown %}
+      <div class="breakdown-row">
+        <span>{{ item.category }}</span>
+        <div class="breakdown-bar-wrap">
+          <div class="breakdown-bar" style="width: {% widthratio item.total expense 100 %}%;"></div>
+        </div>
+        <span class="breakdown-amount">Rp {{ item.total|rupiah }}</span>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="empty-note">Tidak ada pengeluaran di bulan ini.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

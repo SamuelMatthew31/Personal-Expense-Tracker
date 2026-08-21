@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load currency_filters %}
 {% block title %}Transaksi — Ledger{% endblock %}
 
 {% block content %}
@@ -28,6 +29,89 @@
     <a href="{% url 'transaction_create' %}" class="btn-primary-inline">+ Tambah Transaksi</a>
   </div>
 
+  <style>
+    .filter-bar {
+      background: var(--color-surface);
+      border: 1px solid var(--color-border);
+      border-radius: 10px;
+      padding: 1.2rem 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      gap: 0.9rem;
+      align-items: flex-end;
+      flex-wrap: wrap;
+    }
+    .filter-field { display: flex; flex-direction: column; gap: 0.35rem; }
+    .filter-field label {
+      font-family: 'IBM Plex Mono', monospace;
+      font-size: 0.7rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--color-ink-soft);
+    }
+    .filter-field input, .filter-field select {
+      padding: 0.55rem 0.7rem;
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.88rem;
+    }
+    .btn-filter {
+      padding: 0.6rem 1.1rem;
+      background: var(--color-primary);
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.88rem;
+      cursor: pointer;
+    }
+    .btn-reset {
+      padding: 0.6rem 1.1rem;
+      background: transparent;
+      color: var(--color-ink-soft);
+      border: 1px solid var(--color-border);
+      border-radius: 6px;
+      font-size: 0.88rem;
+      text-decoration: none;
+    }
+  </style>
+
+  <form method="get" class="filter-bar">
+    <div class="filter-field">
+      <label>Tipe</label>
+      <select name="type">
+        <option value="">Semua</option>
+        <option value="IN" {% if selected_type == 'IN' %}selected{% endif %}>Income</option>
+        <option value="EX" {% if selected_type == 'EX' %}selected{% endif %}>Expense</option>
+      </select>
+    </div>
+
+    <div class="filter-field">
+      <label>Kategori</label>
+      <input type="text" name="category" value="{{ selected_category }}" placeholder="cth: Coffee">
+    </div>
+
+    <div class="filter-field">
+      <label>Dari Tanggal</label>
+      <input type="date" name="date_from" value="{{ date_from }}">
+    </div>
+
+    <div class="filter-field">
+      <label>Sampai Tanggal</label>
+      <input type="date" name="date_to" value="{{ date_to }}">
+    </div>
+
+    <button type="submit" class="btn-filter">Terapkan</button>
+    <a href="{% url 'transaction_list' %}" class="btn-reset">Reset</a>
+  </form>
+
+  {% if selected_type or selected_category or date_from or date_to %}
+  <p style="color: var(--color-ink-soft); font-size: 0.85rem; margin-bottom: 1rem;">
+    Menampilkan {{ transactions|length }} transaksi sesuai filter.
+  </p>
+  {% endif %}
+
   {% if transactions %}
   <table>
     <thead>
@@ -46,7 +130,7 @@
         <td>{{ t.category }}</td>
         <td>{{ t.description|default:"—" }}</td>
         <td class="{% if t.type == 'IN' %}amount-income{% else %}amount-expense{% endif %}">
-          {% if t.type == 'IN' %}+{% else %}-{% endif %} Rp {{ t.amount }}
+          {% if t.type == 'IN' %}+{% else %}-{% endif %} Rp {{ t.amount|rupiah }}
         </td>
         <td class="row-actions">
           <a href="{% url 'transaction_update' t.pk %}">Edit</a>

@@ -3,6 +3,7 @@ from .views import (
     RegisterView, dashboard,
     transaction_list, transaction_create,
     transaction_update, transaction_delete,
+    monthly_report,
 )
 
 urlpatterns = [
@@ -12,4 +13,5 @@ urlpatterns = [
     path('transactions/add/', transaction_create, name='transaction_create'),
     path('transactions/<int:pk>/edit/', transaction_update, name='transaction_update'),
     path('transactions/<int:pk>/delete/', transaction_delete, name='transaction_delete'),
+    path('reports/monthly/', monthly_report, name='monthly_report'),
 ]

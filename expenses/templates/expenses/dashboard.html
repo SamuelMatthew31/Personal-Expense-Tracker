@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load currency_filters %}
 {% block title %}Dashboard — Ledger{% endblock %}
 
 {% block content %}
@@ -141,15 +142,15 @@
   <div class="summary-grid">
     <div class="summary-card balance">
       <div class="label">Saldo</div>
-      <div class="value">Rp {{ balance }}</div>
+      <div class="value">Rp {{ balance|rupiah }}</div>
     </div>
     <div class="summary-card income">
       <div class="label">Pemasukan</div>
-      <div class="value">Rp {{ income }}</div>
+      <div class="value">Rp {{ income|rupiah }}</div>
     </div>
     <div class="summary-card expense">
       <div class="label">Pengeluaran</div>
-      <div class="value">Rp {{ expense }}</div>
+      <div class="value">Rp {{ expense|rupiah }}</div>
     </div>
   </div>
 
@@ -157,6 +158,7 @@
   <div class="recent-header">
     <h2>Transaksi Terbaru</h2>
     <a href="{% url 'transaction_list' %}">Lihat semua &rarr;</a>
+    <a href="{% url 'monthly_report' %}" style="font-size: 0.85rem; color: var(--color-primary); text-decoration: none; margin-left: 1rem;">Lihat Laporan Bulanan &rarr;</a>
   </div>
   <table>
     <thead>
@@ -172,7 +174,7 @@
           <td>{{ t.transaction_date }}</td>
           <td>{{ t.category }}</td>
           <td class="{% if t.type == 'IN' %}amount-income{% else %}amount-expense{% endif %}">
-              {% if t.type == 'IN' %}+{% else %}-{% endif %} Rp {{ t.amount }}
+              {% if t.type == 'IN' %}+{% else %}-{% endif %} Rp {{ t.amount|rupiah }}
           </td>
       </tr>
       {% endfor %}
